@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"openApi-authentication/api/client"
 	"openApi-authentication/common/auth"
+	"os"
 )
 
 type DomainSummary struct {
@@ -21,6 +22,9 @@ type DomainSummary struct {
 type DomainList struct {
 	XMLName         xml.Name        `xml:"domain-list"`
 	DomainSummaries []DomainSummary `xml:"domain-summary"`
+}
+type Domainkv struct {
+	DomainSummaries []DomainSummary `json:"DomainSummaries"`
 }
 
 func main() {
@@ -47,5 +51,26 @@ func main() {
 
 	// 打印 JSON 数据
 	fmt.Println(string(jsonData))
+	var domainkv Domainkv
 
+	err = json.Unmarshal([]byte(jsonData), &domainkv)
+	if err != nil {
+		fmt.Println("解码JSON失败:", err)
+		return
+	}
+	targetDomainName := os.Getenv("CI_VARIABLE_NAME")
+	if gitlabVariable == "" {
+		fmt.Println("未找到环境变量 CI_VARIABLE_NAME")
+	} else {
+		fmt.Printf("GitLab CI/CD 变量的值是：%s\n", gitlabVariable)
+	}
+	var DomainID int
+	// 遍历DomainSummaries并输出所需的键值对
+	for _, summary := range domainkv.DomainSummaries {
+		if summary.DomainName == targetDomainName {
+			DomainID = summary.DomainID
+			fmt.Println(DomainID)
+			break
+		}
+	}
 }
