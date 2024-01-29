@@ -1,9 +1,9 @@
 stages:
   - build
 
-my_manual_job:
+get_domain_id:
   stage: build
   script:
-    - echo "这是一个手动触发的作业"
-  only:
-    - manual
+    - cd getDomainId/basic  # 切换到子目录
+    - go run Client.go
+    - echo $DomainID
